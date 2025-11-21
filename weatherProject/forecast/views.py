@@ -178,6 +178,5 @@ def weather_view(request):
             'hum5': f"{round(hum5, 1)}",
         }
         return render(request, 'weather.html', context)
-    else:
-        # Affiche le formulaire ou la page vide pour GET
-        return render(request, 'weather.html', {})
+
+    return render(request, 'weather.html')
