@@ -3,7 +3,7 @@
 <head>
     {% load static %}
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width", initial-scale="1.0">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="icon" href="{% static 'img/site-pic.ico' %}" type="image/icon type"/>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
@@ -35,10 +35,10 @@
             </form>
             <div class="day-stats">
                 <h2 class="day-stats__temperature">
-                    <span class="day-stats__temperature_value">{{ current_temp}}</span>%
+                    <span class="day-stats__temperature_value">{{ current_temp}}</span>°C
                 </h2>
                 <h3 class="day-stats__feelslike">
-                    Feels like:&nbsp&npsp<span class="day-stats__temperature_value">{{ feels_like}}</span>
+                    Feels like:&nbsp&nbsp<span class="day-stats__temperature_value">{{ feels_like}}</span>
                 </h3>
                 <ul class="day-stats_conditions">
                     <li>
@@ -53,7 +53,7 @@
                     <p class="day-stats__condition_text">of Clouds</p>
                 </ul>
             </div>
-            <img src="{% static 'img\side-blur.png' %}" class="side-blur" alt="blur"/>
+            <img src="{% static 'img/side-blur.png' %}" class="side-blur" alt="blur"/>
         </section>
 
         <section class="main-container">

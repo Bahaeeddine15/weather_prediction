@@ -12,6 +12,7 @@ from sklearn.metrics import mean_squared_error
 from datetime import datetime, timedelta
 import pytz
 import os
+from django.conf import settings
 
 
 API_KEY = 'bae9f18460d0d5e4e2f3ed42d4b16e49'
@@ -100,23 +101,14 @@ def predict_future(model, current_value) :
     return predictions[1:]
 
 #Weather Analysis Function
-def weather_view(request) :
-    if request.method == 'POST' :
+def weather_view(request):
+    if request.method == 'POST':
         city = request.POST.get('city')
         current_weather = get_current_weather(city)
-
-        #load historical data
-        csv_path = os.path.join('C:\\Users\\HP\\Desktop\\GI2\\Ai\\Projet\\weather_prediction\\weather.csv')
+        csv_path = os.path.join(settings.BASE_DIR, 'weather.csv')
         historical_data = read_historical_data(csv_path)
-
-        #prepare and train the rain prediction model
-
-        X, y ,le = prepare_data(historical_data)
-
-        rain_model = train_rain_model(X,y)
-
-        #map wind direction to compass points
-
+        X, y, le = prepare_data(historical_data)
+        rain_model = train_rain_model(X, y)
         wind_deg = current_weather['wind_gust_dir'] % 360
         compass_points = [
             ("N", 0, 11.25), ("NNE",11.25,33.75), ("NE",33.75,56.25),
@@ -126,92 +118,66 @@ def weather_view(request) :
             ("W", 258.75, 281.25), ("WNW", 281.25, 303.75), ("NW", 303.75, 326.25),
             ("NNW", 326.25, 348.75)
         ]
-
         compass_direction = next(point for point, start, end in compass_points if start <= wind_deg < end)
-
-        compass_direction_encoded = le.transform([compass_direction]) [0] if compass_direction in le.classes_ else -1
-
+        compass_direction_encoded = le.transform([compass_direction])[0] if compass_direction in le.classes_ else -1
         current_data = {
-            'MinTemp' : current_weather['temp_min'],
-            'MaxTemp' : current_weather['temp_max'],
-            'WindGustDir' : compass_direction_encoded,
-            'WindGustSpeed' : current_weather['wind_gust_speed'],
-            'Humidity' : current_weather['humidity'],
-            'Pressure' : current_weather['pressure'],
-            'Temp' : current_weather['current_temp']
+            'MinTemp': current_weather['temp_min'],
+            'MaxTemp': current_weather['temp_max'],
+            'WindGustDir': compass_direction_encoded,
+            'WindGustSpeed': current_weather['wind_gust_speed'],
+            'Humidity': current_weather['humidity'],
+            'Pressure': current_weather['pressure'],
+            'Temp': current_weather['current_temp']
         }
-
         current_df = pd.DataFrame([current_data])
-
-        #rain prediction
         rain_prediction = rain_model.predict(current_df)[0]
-
-        #prepare regrission model for temperature and humidity
-
         X_temp, y_temp = prepare_regression_data(historical_data, 'Temp')
         X_hum, y_hum = prepare_regression_data(historical_data, 'Humidity')
-
-        temp_model = train_regression_model(X_temp,y_temp)
-        hum_model = train_regression_model(X_hum,y_hum)
-
-        #predict future temperature and humidity
-
-        future_temp = predict_future(temp_model,current_weather['temp_min'])
+        temp_model = train_regression_model(X_temp, y_temp)
+        hum_model = train_regression_model(X_hum, y_hum)
+        future_temp = predict_future(temp_model, current_weather['temp_min'])
         future_humidity = predict_future(hum_model, current_weather['humidity'])
-
-        #prepare time for future predictions
-
-        timezone =pytz.timezone('Africa/Casablanca')
+        timezone = pytz.timezone('Africa/Casablanca')
         now = datetime.now(timezone)
         next_hour = now + timedelta(hours=1)
-        next_hour = next_hour.replace(minute=0,second=0,microsecond=0)
-
+        next_hour = next_hour.replace(minute=0, second=0, microsecond=0)
         future_times = [(next_hour + timedelta(hours=i)).strftime("%H:00") for i in range(5)]
-
-    
-        #store each value seperately
-        time1, time2, time3, time4, time5 = future_times 
+        time1, time2, time3, time4, time5 = future_times
         temp1, temp2, temp3, temp4, temp5 = future_temp
         hum1, hum2, hum3, hum4, hum5 = future_humidity
-
-        #Pass sata to template
         context = {
-            'location' : city,
-            'current_temp' : current_weather['current_temp'],
-            'MinTemp' : current_weather['temp_min'],
-            'MaxTemp' : current_weather['temp_max'],
-            'feels_like' : current_weather['feels_like'],
-            'humidity' : current_weather['humidity'],
-            'clouds' : current_weather['clouds'],
-            'description' : current_weather['description'],
-            'city' : current_weather['city'],
-            'country' : current_weather['country'],
-
-            'time' : datetime.now(),
-            'date' : datetime.now().strftime("%B %d, %Y"),
-
-            'wind' : current_weather['wind_gust_speed'],
-            'pressure' : current_weather['pressure'],
-            'visibility' : current_weather['visibility'],
-
-            'time1' : time1,
-            'time2' : time2,
-            'time3' : time3,
-            'time4' : time4,
-            'time5' : time5,
-
-            'temp1' : f"{round(temp1, 1)}",
-            'temp2' : f"{round(temp2, 1)}",
-            'temp3' : f"{round(temp3, 1)}", 
-            'temp4' : f"{round(temp4, 1)}",
-            'temp5' : f"{round(temp5, 1)}",
-
-            'hum1' : f"{round(hum1, 1)}",
-            'hum2' : f"{round(hum2, 1)}",
-            'hum3' : f"{round(hum3, 1)}",
-            'hum4' : f"{round(hum4, 1)}",
-            'hum5' : f"{round(hum5, 1)}",
+            'location': city,
+            'current_temp': current_weather['current_temp'],
+            'MinTemp': current_weather['temp_min'],
+            'MaxTemp': current_weather['temp_max'],
+            'feels_like': current_weather['feels_like'],
+            'humidity': current_weather['humidity'],
+            'clouds': current_weather['clouds'],
+            'description': current_weather['description'],
+            'city': current_weather['city'],
+            'country': current_weather['country'],
+            'time': datetime.now(),
+            'date': datetime.now().strftime("%B %d, %Y"),
+            'wind': current_weather['wind_gust_speed'],
+            'pressure': current_weather['pressure'],
+            'visibility': current_weather['Visibility'],
+            'time1': time1,
+            'time2': time2,
+            'time3': time3,
+            'time4': time4,
+            'time5': time5,
+            'temp1': f"{round(temp1, 1)}",
+            'temp2': f"{round(temp2, 1)}",
+            'temp3': f"{round(temp3, 1)}",
+            'temp4': f"{round(temp4, 1)}",
+            'temp5': f"{round(temp5, 1)}",
+            'hum1': f"{round(hum1, 1)}",
+            'hum2': f"{round(hum2, 1)}",
+            'hum3': f"{round(hum3, 1)}",
+            'hum4': f"{round(hum4, 1)}",
+            'hum5': f"{round(hum5, 1)}",
         }
-
         return render(request, 'weather.html', context)
-    return render(request, 'weather.html', context)
+    else:
+        # Affiche le formulaire ou la page vide pour GET
+        return render(request, 'weather.html', {})
