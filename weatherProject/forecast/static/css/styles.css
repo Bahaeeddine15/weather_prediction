@@ -23,11 +23,10 @@ main{
     justify-content: space-between;
     align-items: flex-end;
     margin: 0 auto;
-    width: fit-content;
-    height: 635px;
+    width: 100vw;
+    height: 100vh;
     background-repeat: no-repeat;
     background-size: cover;
-    border-radius: 25px;
     overflow: hidden;
 }
 main.clouds{
@@ -173,9 +172,7 @@ main.clear{
 }
 .day-stats__condition_text{
     color: #fff;
-    
     font-size: 13px;
-   
 }
 
 /*main content*/
@@ -202,7 +199,7 @@ main.clear{
     color: #fff;
     font-size: 13px;
     line-height: 100%;
-    letter-spacing: -1.9px;
+    letter-spacing: 1px;
 }
 .weather__location{
     display: flex;
